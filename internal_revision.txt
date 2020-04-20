@@ -1,0 +1,3 @@
+Use this to give a hint to the developer about the internal version:
+
+e99c89d2e56593278b0b826afab990d4cc044a2c

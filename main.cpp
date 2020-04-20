@@ -14,7 +14,7 @@
 #include <pthread.h>
 
 /*
- * capstone server v0.1
+ * capstone server v0.3.0
  * 
  * PURPOSE: Provide a capstone binding for yara-signator over TCP
  * (https://github.com/fxb-cocacoding/yara-signator)
@@ -48,8 +48,8 @@
  * It crashes sometimes, if you find out why, please let me know.
  * 
  * It was developed very quick as a workaround, because the capstone JAVA bindings
- * were creating a large memory leak which crashed my process. TCP because you can
- * easy restart the server and TCP handles the lost packets for you.
+ * were creating a large memory leak which crashed my process. TCP is used for IPC
+ * because you can easily restart the server and TCP handles the lost packets for you.
  * 
  */
 
@@ -64,7 +64,9 @@ struct args {
     int read_return;
 } args;
 
-void *capstone_worker(void* pthread_args) {
+void capstone_worker(void* pthread_args) {
+    
+    //printf("capstone worker\n");
     
     struct args *arguments = (struct args *)pthread_args;
     const char *failure = "INVALID\n";
@@ -73,10 +75,13 @@ void *capstone_worker(void* pthread_args) {
     size_t count;
     
     if (cs_open(CS_ARCH_X86, CS_MODE_32, &handle) != CS_ERR_OK) {
-        return NULL;
+        printf("capstone error\n");
+        return;
     }
     
     count = cs_disasm(handle, arguments->buffer, arguments->read_return, 0x0000, 0, &insn);
+    
+    //printf("count: %zu\n", count);
     
     if (count > 0) {
         
@@ -84,7 +89,14 @@ void *capstone_worker(void* pthread_args) {
         
         for(j=0; j<count; j++) {
             //This is ugly but it works.
-            int snprintf_return = snprintf((char*)arguments->buffer, 1024, "0x%"PRIx64"\t%s\t%s\n", insn[j].address, insn[j].mnemonic, insn[j].op_str);
+            int snprintf_return = snprintf(
+                                            (char*)arguments->buffer,
+                                            1024,
+                                            "0x%" PRIx64"\t%s\t%s\n",
+                                            insn[j].address,
+                                            insn[j].mnemonic,
+                                            insn[j].op_str);
+            
             int write_return = write(arguments->sd, arguments->buffer, snprintf_return);
         }
     } else {
@@ -133,6 +145,8 @@ int multithreading(int listener_socket, int max_sd, const int max_clients, struc
      * Detached thread for every new client
      */
     
+    //printf("multithreading\n");
+    
     pthread_t p_thread_container;
     pthread_attr_t pthread_attr;
     
@@ -149,6 +163,8 @@ int multithreading(int listener_socket, int max_sd, const int max_clients, struc
         if (new_socket < 0) {
             exit(EXIT_FAILURE);
         }
+        
+        //printf("new connection\n");
         
         //ugly, but I have a C++ compiler
         //printf("malloc ahead\n");
@@ -219,7 +235,7 @@ int select_loop(int listener_socket, int max_sd, const int max_clients, struct s
                 exit(EXIT_FAILURE);
             }
             
-            printf("new client - remote info: socket %d, ip : %s, port : %d\n" , new_socket , inet_ntoa(address->sin_addr) , ntohs(address->sin_port));
+            //printf("new client - remote info: socket %d, ip : %s, port : %d\n" , new_socket , inet_ntoa(address->sin_addr) , ntohs(address->sin_port));
             
             //write(new_socket, message, strlen(message));
             
@@ -261,9 +277,7 @@ int select_loop(int listener_socket, int max_sd, const int max_clients, struct s
     return 0;
 }
 
-int main(int argc , char *argv[]) {
-    const char *message = "CNPTAESO RRVSEE v0.1\n\n";
-    const char *failure = "INVALID\n";
+int main(int argc , char *argv[], char *envp[]) {
     const int port = PORT;
     const int ip_addr = inet_addr(IP);
     const int max_waiting_connections = 8;
