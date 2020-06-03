@@ -1,5 +1,5 @@
 #!/bin/bash
-TIMEOUT=300
+TIMEOUT=23
 AUTOLOOP_PID=0
 
 trap ctrl_c INT
@@ -18,5 +18,5 @@ do
     ./build/capstone_server &
     AUTOLOOP_PID=$!
     sleep $TIMEOUT
-    kill $AUTOLOOP_PID && wait $AUTOLOOP_PID 2>/dev/null
+    kill $AUTOLOOP_PID && wait $AUTOLOOP_PID #2>/dev/null
 done
