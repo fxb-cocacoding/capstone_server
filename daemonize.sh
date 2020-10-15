@@ -1,22 +1,33 @@
 #!/bin/bash
-TIMEOUT=23
+TIMEOUT=180
 AUTOLOOP_PID=0
 
 trap ctrl_c INT
 
 function ctrl_c() {
     echo "[SHUTTING DOWN] "$SECONDS" sec - killing remaining instances..."
-    kill $AUTOLOOP_PID && wait $AUTOLOOP_PID 2>/dev/null
+    killall capstone_server
+    #kill $AUTOLOOP_PID && wait $AUTOLOOP_PID 2>/dev/null
     echo "[FINISHING] DONE"
     exit
 }
 
+function looping() {
+    while true;
+    do
+        echo "[REFRESHING] "$SECONDS" sec - restarted capstone_server"
+        ./build/capstone_server
+    done
+}
+
 echo "[STARTING] "$SECONDS" sec - starting capstone_server"
+
+looping &
+
 while true;
 do
-    echo "[REFRESHING] "$SECONDS" sec - restarted capstone_server"
-    ./build/capstone_server &
-    AUTOLOOP_PID=$!
     sleep $TIMEOUT
-    kill $AUTOLOOP_PID && wait $AUTOLOOP_PID #2>/dev/null
+    echo "[REFRESHING] "$SECONDS" sec - killed capstone_server"
+    killall capstone_server
 done
+
