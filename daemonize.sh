@@ -1,6 +1,8 @@
 #!/bin/bash
 TIMEOUT=180
 AUTOLOOP_PID=0
+IP=""
+PORT=""
 
 trap ctrl_c INT
 
@@ -16,8 +18,8 @@ function looping() {
     while true;
     do
         echo "[REFRESHING] "$SECONDS" sec - restarted capstone_server"
-        echo "[ARGUMENTS] ip: "$1" port: "$2" "
-        ./build/capstone_server "$1" "$2"
+        echo "[ARGUMENTS] ip: "$IP" port: "$PORT" "
+        ./build/capstone_server "$IP" "$PORT"
     done
 }
 
@@ -27,6 +29,8 @@ if [[ $# -ne 2 ]]; then
   exit 1
 fi
 echo "[ARGUMENTS] ip: "$1" port: "$2" "
+IP=$1
+PORT=$2
 echo "[STARTING] "$SECONDS" sec - starting capstone_server"
 
 looping &
