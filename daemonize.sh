@@ -16,6 +16,7 @@ function looping() {
     while true;
     do
         echo "[REFRESHING] "$SECONDS" sec - restarted capstone_server"
+        echo "[ARGUMENTS] ip: "$1" port: "$2" "
         ./build/capstone_server "$1" "$2"
     done
 }
