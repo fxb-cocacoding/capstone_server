@@ -16,10 +16,16 @@ function looping() {
     while true;
     do
         echo "[REFRESHING] "$SECONDS" sec - restarted capstone_server"
-        ./build/capstone_server
+        ./build/capstone_server "$1" "$2"
     done
 }
 
+
+if [[ $# -ne 2 ]]; then
+  echo "Usage: daemonize.sh <ip> <port>"
+  exit 1
+fi
+echo "[ARGUMENTS] ip: "$1" port: "$2" "
 echo "[STARTING] "$SECONDS" sec - starting capstone_server"
 
 looping &

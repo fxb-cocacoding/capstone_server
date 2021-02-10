@@ -53,8 +53,8 @@
  * 
  */
 
-#define PORT 12345
-#define IP "127.0.0.1"
+//#define PORT 12345
+//#define IP "127.0.0.1"
 
 struct args {
     int i;
@@ -278,8 +278,19 @@ int select_loop(int listener_socket, int max_sd, const int max_clients, struct s
 }
 
 int main(int argc , char *argv[], char *envp[]) {
-    const int port = PORT;
-    const int ip_addr = inet_addr(IP);
+
+    if(argc != 3) {
+        printf("Usage: %s <ip> <port>\n    Example: %s 127.0.0.1 12345\n", argv[0], argv[0]);
+        return EXIT_SUCCESS;
+    }
+
+    printf("Arguments: IP: %s - Port: %s\n", argv[1], argv[2]);
+
+    const char *cip = argv[1];
+    const char *cport = argv[2];
+
+    const int ip_addr = inet_addr(argv[1]);
+    const int port = atoi(argv[2]);
     const int max_waiting_connections = 8;
     const int buffer_size = 8192;
     const int max_clients = 16;
@@ -314,7 +325,7 @@ int main(int argc , char *argv[], char *envp[]) {
         printf("bind error, is the server already online?\n");
         exit(EXIT_FAILURE);
     }
-    printf("Listening on port: %i on address: %s\n", port, IP);
+    printf("Listening on port: %i on address: %s\n", port, cip);
     printf("...\n");
     return_code = listen(listener_socket, max_waiting_connections);
     

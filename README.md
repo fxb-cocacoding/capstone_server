@@ -15,9 +15,9 @@ cmake ..
 make all
 ```
 
-Then you can run the program by `./daemonize.sh`. You can edit the source code to disable multi-threading or changing the IP (127.0.0.1 default) or PORT (12345 default). Although this is not recommended since these values are currently hardcoded in YARA-Signator, which is probably the reason you want to use this capstone daemon.
+Then you can run the program by `./daemonize.sh`. You can edit the source code to disable multi-threading. IP and port can be changed via command line, although the default is 127.0.0.1 and port 12345 for YARA-Signator. Therefore this is not recommended since these values are currently hardcoded in YARA-Signator, which is probably the reason you want to use this capstone daemon.
 
-The software was built and testet on my developer station with GCC 9.2.0, CMake 3.16.5, capstone 4.0.1 and libpthreads 2.29 (should be part of glibc 2.29). If the software crashes or does not compile feel free to open an issue (even better with an appended stack trace).
+The software was built and tested on my developer station with GCC 9.2.0, CMake 3.16.5, capstone 4.0.1 and libpthreads 2.29 (should be part of glibc 2.29). If the software crashes or does not compile feel free to open an issue (even better with an appended stack trace).
 
 ### How to use it
 
